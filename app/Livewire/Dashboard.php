@@ -25,9 +25,10 @@ class Dashboard extends Component
             $env = Environment::find($event->environment_id);
             $user = User::find($event->user_id);
             $ambientEvents[] = [
-                'title' => "$user->lastname $user->name - $env->code",
+                'title' => "$env->name",
                 'start' => "$event->date $event->startTime",
                 'end' => "$event->date $event->startTime",
+                'responsable' => "$user->name $user->lastname",
                 'handOveredKeys' => "$event->handOveredKeys"
             ];
         }
@@ -36,9 +37,10 @@ class Dashboard extends Component
             $env = Environment::find($event->environment_id);
             $user = User::find($event->user_id);
             $auditoryEvents[] = [
-                'title' => "$user->lastname $user->name - $env->code",
+                'title' => "Reunión $env->code",
                 'start' => "$event->date $event->startTime",
                 'end' => "$event->date $event->startTime",
+                'responsable' => "$user->name $user->lastname",
                 'handOveredKeys' => "$event->handOveredKeys"
             ];
         }

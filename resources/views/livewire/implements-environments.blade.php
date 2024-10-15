@@ -48,9 +48,11 @@
                         <th scope="col" class="px-6 py-3">
                             Editar
                         </th>
-                        <th scope="col" class="px-6 py-3">
-                            Eliminar
-                        </th>
+                        @if(Auth::user()->role == "admin")
+                            <th scope="col" class="px-6 py-3">
+                                Eliminar
+                            </th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -72,9 +74,11 @@
                                 <td class="px-6 py-4 text-center">
                                     <a href="" wire:click.prevent="editModal({{ $imp->id }})" class="font-medium text-blue-500 underline">Editar</a>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <a href=""  wire:click.prevent="deleteModal({{ $imp->id }})" class="font-medium text-red-500 underline">Eliminar</a>
-                                </td>
+                                @if(Auth::user()->role == "admin")
+                                    <td class="px-6 py-4 text-center">
+                                        <a href=""  wire:click.prevent="deleteModal({{ $imp->id }})" class="font-medium text-red-500 underline">Eliminar</a>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     @else

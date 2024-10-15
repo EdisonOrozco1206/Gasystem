@@ -14,7 +14,7 @@ class ImplementsEnvironments extends Component
     public $updating = false;
 
     public function mount($id){
-        if(Auth::user()->role != "admin"){
+        if(Auth::user()->role != "admin" && Auth::user()->role != "coordinador"){
             return redirect()->route("dashboard");
         }elseif(!isset($id) || empty($id)){
             return redirect()->route("dashboard");

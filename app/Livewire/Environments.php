@@ -16,13 +16,11 @@ class Environments extends Component{
     public $popup = false;
     public $deletion = false;
     public $updating = false;
-    public $role;
 
     public function mount(){
-        if(Auth::user()->role != "admin"){
+        if(Auth::user()->role != "admin" && Auth::user()->role != "coordinador"){
             return redirect()->route("dashboard");
         }
-        $this->role = Auth::user()->role;
     }
     
     public function render(){
