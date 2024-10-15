@@ -68,6 +68,15 @@
             right: 'dayGridWeek,dayGridDay'
           },
           events: @json($ambientEvents),
+          eventContent: function(info){
+            let customEl = document.createElement('div');
+            customEl.style.padding = "5px";
+            customEl.innerHTML = `
+              <div><strong class='capitalize'>${info.event.title}</strong></div>
+              <div>${info.event.extendedProps.responsable}</div>
+            `;
+            return { domNodes: [customEl] };
+          },
           eventDidMount: function(info) {
             if (info.event.extendedProps.handOveredKeys == 1) {
               info.el.style.backgroundColor = 'green';
@@ -88,6 +97,15 @@
             right: 'dayGridWeek,dayGridDay'
           },
           events: @json($auditoryEvents),
+          eventContent: function(info){
+            let customEl = document.createElement('div');
+            customEl.style.padding = "5px";
+            customEl.innerHTML = `
+              <div><strong class='capitalize'>${info.event.title}</strong></div>
+              <div>${info.event.extendedProps.responsable}</div>
+            `;
+            return { domNodes: [customEl] };
+          },
           eventDidMount: function(info) {
             if (info.event.extendedProps.handOveredKeys == 1) {
               info.el.style.backgroundColor = 'green';

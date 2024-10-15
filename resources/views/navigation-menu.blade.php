@@ -70,7 +70,7 @@
                         {{ __('Inicio') }}
                     </x-nav-link>
 
-                    @if(Auth::user()->role == "admin")
+                    @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
                         <x-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
                             {{ __('Programación') }}
                         </x-nav-link>
@@ -146,7 +146,7 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Inicio') }}
             </x-responsive-nav-link>
-            @if(Auth::user()->role == "admin")
+            @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
                 <x-responsive-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')">
                     {{ __('Programación') }}
                 </x-responsive-nav-link>

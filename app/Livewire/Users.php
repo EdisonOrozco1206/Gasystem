@@ -20,7 +20,7 @@ class Users extends Component{
     public $popup = false;
 
     public function mount(){
-        if(Auth::user()->role != "admin"){
+        if(Auth::user()->role != "admin"  && Auth::user()->role != "coordinador"){
             return redirect()->route("dashboard");
         }
     }
