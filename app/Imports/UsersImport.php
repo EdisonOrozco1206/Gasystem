@@ -23,7 +23,7 @@ class UsersImport implements ToCollection, ToModel
     public function model(array $row){
         $this->current++;
         $count = User::where("document_number", '=', $row[0])->count();
-        if($this->current > 1 && empty($count)){
+        if($this->current > 1 && !empty($row[0]) && empty($count)){
             if (preg_match('/(\d+)(?=PubDSK)/', $row[2], $matches)) {
                 $row[2] = $matches[1];
             }

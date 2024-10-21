@@ -1,8 +1,8 @@
-<nav x-data="{ open: false }" class="bg-[#0b3a49] fixed w-[20%]">
+<nav x-data="{ open: false }" class="sm:bg-[#0b3a49] sm:fixed sm:w-[20%]">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto pl-4">
-        <div class="flex flex-col justify-around min-h-[100vh]">
-            <div class="flex flex-col">
+        <div class="sm:flex sm:flex-col sm:justify-around sm:min-h-[100vh] hidden">
+            <div class="sm:flex sm:flex-col">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center flex-col pr-4 mb-4">
                     <a href="{{ route('dashboard') }}">
@@ -69,10 +69,13 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
                         {{ __('Inicio') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
+                        {{ __('Programación') }}
+                    </x-nav-link>
 
                     @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
-                        <x-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
-                            {{ __('Programación') }}
+                        <x-nav-link href="{{ route('quarters') }}" :active="request()->routeIs('quarters')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
+                            {{ __('Trimestres') }}
                         </x-nav-link>
                         <x-nav-link href="{{ route('environments') }}" :active="request()->routeIs('environments')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
                             {{ __('Ambientes') }}
@@ -140,15 +143,28 @@
         </div>
     </div>
 
+    <!-- Botón para mostrar/ocultar el menú responsive -->
+    <div class="flex items-center justify-end sm:hidden border bg-white">
+        <button @click="open = !open" class="inline-flex items-center justify-center p-1 m-1 rounded-md border border-slate-800 text-slate-700 hover:text-white hover:bg-slate-800 focus:outline-none focus:bg-slate-900 focus:text-white float-right">
+            <svg class="h-9 w-9" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path :class="{'hidden': open, 'inline-flex': !open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                <path :class="{'inline-flex': open, 'hidden': !open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <div :class="{'block': open, 'hidden': ! open}" class="block sm:hidden">
+        <div class="pt-2 pb-3 space-y-1 bg-white">
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Inicio') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')">
+                {{ __('Programación') }}
+            </x-responsive-nav-link>
             @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
-                <x-responsive-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')">
-                    {{ __('Programación') }}
+                <x-responsive-nav-link href="{{ route('quarters') }}" :active="request()->routeIs('quarters')">
+                    {{ __('Trimestres') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('environments') }}" :active="request()->routeIs('environments')">
                     {{ __('Ambientes') }}
@@ -160,7 +176,7 @@
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="pt-4 pb-1 border-t border-gray-200 bg-white">
             <div class="flex items-center px-4">
                 @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                     <div class="shrink-0 me-3">

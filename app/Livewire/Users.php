@@ -36,8 +36,7 @@ class Users extends Component{
     }
 
     public function save(){
-        $this->errors = [];
-        $this->success = "";
+        $this->clearErrors();
         if(empty($this->name) || $this->name == ""){ $this->errors['name'] = "Este campo es obligatorio"; }
         if(empty($this->lastname) || $this->lastname == ""){ $this->errors['lastname'] = "Este campo es obligatorio"; }
         if(empty($this->document_number) || $this->document_number == ""){ $this->errors['document_number'] = "Este campo es obligatorio"; }
@@ -68,8 +67,7 @@ class Users extends Component{
 
 
     public function update($id){
-        $this->errors = [];
-        $this->success = "";
+        $this->clearErrors();
 
         if($id){
             if(empty($this->name) || $this->name == ""){ $this->errors['name'] = "Este campo es obligatorio"; }
@@ -97,26 +95,37 @@ class Users extends Component{
     }
 
     public function delete($id){
-        if($id){
-            $user = User::find($id);
-            $user->delete();
-            $this->cancel();
-        }else{
-            $this->errors['id'] = "Identificador no asignado";
+        $this->clearErrors();
+        try{
+            if($id){
+                $user = User::find($id);
+                $user->delete();
+                $this->closePopUp();
+            }else{
+                $this->errors['id'] = "Identificador no asignado";
+            }
+        }catch (\Throwable $th) {
+            $this->closePopUp();
+            $this->errors['foreing_kes'] = "No eliminado, Existen otros registros asociados a este elemento o error durante la eliminación";
         }
     }
 
     // Import data from excel
     public function importData(){
-        if($this->file){
-            Excel::import(new UsersImport, $this->file);
+        $this->clearErrors();
+        try{
+            if($this->file){
+                Excel::import(new UsersImport, $this->file);
+            }
+            $this->success = "Información importada";
+        } catch (\Throwable $th) {
+            $this->errors['import'] = "Información no importada".$th->getMessage();
         }
-
-        $this->success = "Información importada";
         $this->file = '';
     }
 
     public function editModal($id){
+        $this->clearErrors();
         if($id){
             $this->openPopUp();
             $record = User::find($id);
@@ -133,8 +142,7 @@ class Users extends Component{
     }
 
     public function deleteModal($id){
-
-        if($id){        
+        if($id){
             $this->openPopUp();
             $this->deletion = $id;
         }else{
@@ -144,6 +152,9 @@ class Users extends Component{
 
     public function openPopUp(){
         $this->popup = true;
+    }
+    public function closePopUp(){
+        $this->popup = false;
     }
 
     public function cancel(){

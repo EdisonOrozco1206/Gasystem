@@ -21,7 +21,7 @@ class EnvironmentsImport implements ToCollection, ToModel
     public function model(array $row){
         $this->current++;
         $count = Environment::where("code", '=', $row[0])->count();
-        if($this->current > 1 && empty($count)){
+        if($this->current > 1 && !empty($row[0]) && empty($count)){
             $env = new Environment();
             $env->code = $row[0];
             $env->name = $row[1];

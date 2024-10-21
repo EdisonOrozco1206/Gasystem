@@ -20,11 +20,11 @@
     <body class="font-sans antialiased">
         <x-banner />
 
-        <div class="min-h-screen bg-gray-100 flex justify-evenly">
-            <div class="w-[20%] overflow-hidden">
+        <div class="min-h-screen bg-gray-100 sm:flex sm:justify-evenly">
+            <div class="sm:w-[20%] w-[100%] overflow-hidden">
                 @livewire('navigation-menu')
             </div>
-            <div class="w-[80%]">
+            <div class="sm:w-[80%] w-[100%]">
                 <!-- Page Heading -->
                 @if (isset($header))
                     <header class="bg-white shadow">

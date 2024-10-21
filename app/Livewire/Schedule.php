@@ -10,6 +10,7 @@ use App\Models\Environment;
 use Maatwebsite\Excel\Facades\Excel;
 use Livewire\WithFileUploads;
 use App\Imports\SchedulesImport;
+use App\Models\Quarter;
 use Illuminate\Support\Facades\Auth;
 
 class Schedule extends Component{
@@ -22,16 +23,18 @@ class Schedule extends Component{
     public $updating = false;
 
     public function mount(){
-        if(Auth::user()->role != "admin" && Auth::user()->role != "coordinador"){
+        if(Auth::user()->role != "admin" && Auth::user()->role != "coordinador" && Auth::user()->role != "gestor"){
             return redirect()->route("dashboard");
         }
     }
 
     public function render(){
+        $lastQuarter = Quarter::orderBy('id', 'desc')->first();
+
         if($this->search){
-            $this->schedules = Schedules::whereHas('environment', function ($query) { $query->where('code', 'like', "%$this->search%"); })->get();
+            $this->schedules = Schedules::whereHas('environment', function ($query) { $query->where('code', 'like', "%$this->search%"); })->whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
         }else{
-            $this->schedules = Schedules::all();
+            $this->schedules = Schedules::whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
         }
 
         return view('livewire.schedule');
@@ -39,24 +42,27 @@ class Schedule extends Component{
 
     // Import data from excel
     public function importData(){
-        if($this->file){
-            Excel::import(new SchedulesImport, $this->file);
+        $this->clearErrors();
+        try{
+            if($this->file){
+                Excel::import(new SchedulesImport, $this->file);
+            }
+            $this->success = "Información importada";
+        } catch (\Throwable $th) {
+            $this->errors['import'] = "Información no importada".$th->getMessage();
         }
-
-        $this->success = "Información importada";
         $this->file = '';
     }
 
     public function save(){
-        $this->success = '';
-        $this->errors = [];
+        $this->clearErrors();
 
         if(empty($this->teacher) || $this->teacher == ""){ $this->errors['teacher'] = "Este campo es obligatorio"; }
         if(empty($this->environment) || $this->environment == ""){ $this->errors['environment'] = "Este campo es obligatorio"; }
         if(empty($this->date) || $this->date == ""){ $this->errors['date'] = "Este campo es obligatorio"; }
         if(empty($this->startTime) || $this->startTime == ""){ $this->errors['startTime'] = "Este campo es obligatorio"; }
         if(empty($this->endTime) || $this->endTime == ""){ $this->errors['endTime'] = "Este campo es obligatorio"; }
-        if(empty($this->handOveredKeys) || $this->handOveredKeys == ""){ $this->errors['handOveredKeys'] = "Este campo es obligatorio"; }
+        if(!isset($this->handOveredKeys) || ($this->handOveredKeys != 0 && $this->handOveredKeys != 1)){ $this->errors['handOveredKeys'] = "Este campo es obligatorio"; }
 
         if($this->errors == []){
             $sch = new Schedules();
@@ -73,16 +79,15 @@ class Schedule extends Component{
     }
 
     public function update($id){
-        $this->success = '';
-        $this->errors = [];
-
+        $this->clearErrors();
+        
         if($id){
             if(empty($this->teacher) || $this->teacher == ""){ $this->errors['teacher'] = "Este campo es obligatorio"; }
             if(empty($this->environment) || $this->environment == ""){ $this->errors['environment'] = "Este campo es obligatorio"; }
             if(empty($this->date) || $this->date == ""){ $this->errors['date'] = "Este campo es obligatorio"; }
             if(empty($this->startTime) || $this->startTime == ""){ $this->errors['startTime'] = "Este campo es obligatorio"; }
             if(empty($this->endTime) || $this->endTime == ""){ $this->errors['endTime'] = "Este campo es obligatorio"; }
-            if(empty($this->handOveredKeys) || $this->handOveredKeys == ""){ $this->errors['handOveredKeys'] = "Este campo es obligatorio"; }
+            if(!isset($this->handOveredKeys) || ($this->handOveredKeys != 0 && $this->handOveredKeys != 1)){ $this->errors['handOveredKeys'] = "Este campo es obligatorio"; }
 
             if($this->errors == []){
                 $row = Schedules::find($id);
@@ -103,13 +108,19 @@ class Schedule extends Component{
     }
 
     public function delete($id){
-        if($id){
-            $record = Schedules::find($id);
-            $record->delete();
-            $this->deletion = '';
+        $this->clearErrors();
+        try{
+            if($id){
+                $record = Schedules::find($id);
+                $record->delete();
+                $this->deletion = '';
+                $this->popup = false;
+            }else{
+                $this->errors['id'] = "Identificador no asignado";
+            }
+        }catch (\Throwable $th) {
             $this->popup = false;
-        }else{
-            $this->errors['id'] = "Identificador no asignado";
+            $this->errors['foreing_kes'] = "Error al eliminar el registro";
         }
     }
 

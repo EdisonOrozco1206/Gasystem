@@ -7,42 +7,54 @@ use App\Models\User;
 use App\Models\Schedules;
 use App\Models\Environment;
 use Illuminate\Support\Carbon;
+use App\Models\Quarter;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SchedulesExport;
 
 class Dashboard extends Component
 {
     public $keys;
-    public $teacher, $class, $user, $type, $nextAmbientsToOcupe, $message;
+    public $teacher, $class, $user, $type, $quarter, $nextAmbientsToOcupe, $message, $errors = [], $success;
 
     public function render(){
-        $ambient_events = Schedules::whereHas('environment', function($query) { $query->where('code', 'not like', '%AU%'); })->get();
-        $auditory_events = Schedules::whereHas('environment', function($query) {$query->where('code', 'like', '%AU%'); })->get();
-        $this->nextAmbientsToOcupe = Schedules::where('date', '=', Carbon::now("America/Bogota")->toDateString())->where('handOveredKeys', '=', 0)->orderBy('startTime', 'asc')->get();
-        
+        $this->quarter = Quarter::orderBy('id', 'desc')->first();
         $ambientEvents = [];
         $auditoryEvents = [];
+        $this->nextAmbientsToOcupe = [];
+        if($this->quarter){
+            $ambient_events = Schedules::whereHas('environment', function($query) { $query->where('code', 'not like', '%AU%'); })->whereBetween('date', [$this->quarter->startDate, $this->quarter->endDate])->get();
+            $auditory_events = Schedules::whereHas('environment', function($query) {$query->where('code', 'like', '%AU%'); })->whereBetween('date', [$this->quarter->startDate, $this->quarter->endDate])->get();
+            $this->nextAmbientsToOcupe = Schedules::where('date', '=', Carbon::now("America/Bogota")->toDateString())->where('handOveredKeys', '=', 0)->orderBy('startTime', 'asc')->get();
 
-        foreach($ambient_events as $event){
-            $env = Environment::find($event->environment_id);
-            $user = User::find($event->user_id);
-            $ambientEvents[] = [
-                'title' => "$env->name",
-                'start' => "$event->date $event->startTime",
-                'end' => "$event->date $event->startTime",
-                'responsable' => "$user->name $user->lastname",
-                'handOveredKeys' => "$event->handOveredKeys"
-            ];
-        }
+            foreach($ambient_events as $event){
+                $env = Environment::find($event->environment_id);
+                $user = User::find($event->user_id);
+                $ambientEvents[] = [
+                    'title' => "$env->name",
+                    'start' => "$event->date $event->startTime",
+                    'end' => "$event->date $event->startTime",
+                    "responsableInfo" => "$user",
+                    "envInfo" => "$env",
+                    "eventInfo" => "$event",
+                    'responsable' => "$user->name $user->lastname",
+                    'handOveredKeys' => "$event->handOveredKeys",
+                ];
+            }
 
-        foreach($auditory_events as $event){
-            $env = Environment::find($event->environment_id);
-            $user = User::find($event->user_id);
-            $auditoryEvents[] = [
-                'title' => "Reunión $env->code",
-                'start' => "$event->date $event->startTime",
-                'end' => "$event->date $event->startTime",
-                'responsable' => "$user->name $user->lastname",
-                'handOveredKeys' => "$event->handOveredKeys"
-            ];
+            foreach($auditory_events as $event){
+                $env = Environment::find($event->environment_id);
+                $user = User::find($event->user_id);
+                $auditoryEvents[] = [
+                    'title' => "Reunión $env->code",
+                    'start' => "$event->date $event->startTime",
+                    'end' => "$event->date $event->startTime",
+                    "responsableInfo" => "$user",
+                    "envInfo" => "$env",
+                    "eventInfo" => "$event",
+                    'responsable' => "$user->name $user->lastname",
+                    'handOveredKeys' => "$event->handOveredKeys",
+                ];
+            }
         }
 
         return view('livewire.dashboard', ['ambientEvents' => $ambientEvents, 'auditoryEvents' => $auditoryEvents]);
@@ -62,6 +74,7 @@ class Dashboard extends Component
                                             ->where('date', "=", $date)
                                             ->whereHas('environment', function($query) { $query->where('code', 'like', '%AU%'); })
                                             ->where('handOveredKeys', "=", 0)
+                                            ->where('startTime', '>=', now())
                                             ->orderBy("startTime", "asc")
                                             ->first();
                 }
@@ -74,6 +87,7 @@ class Dashboard extends Component
                                             ->where('date', "=", $date)
                                             ->whereHas('environment', function($query) { $query->where('code', 'not like', '%AU%'); })
                                             ->where('handOveredKeys', "=", 0)
+                                            ->where('startTime', '>=', now())
                                             ->orderBy("startTime", "asc")
                                             ->first();
                 }
@@ -96,6 +110,17 @@ class Dashboard extends Component
         return null;
     }
 
+    // Export data in excel
+    public function exportData(){
+        $this->clearErrors();
+        try {
+            return Excel::download(new SchedulesExport, "reporte.xlsx");
+            $this->success = "Información importada";
+        } catch (\Throwable $th) {
+            $this->errors['export'] = "Información no exportada: ".$th->getMessage();
+        }
+    }
+
     public function bringKeys(){
         if($this->class && $this->user){
             $class = Schedules::find($this->class->id);
@@ -104,6 +129,11 @@ class Dashboard extends Component
             $this->type = '';
             $this->cancel();
         }
+    }
+
+    public function clearErrors(){
+        $this->errors = [];
+        $this->success = '';
     }
 
     public function handOverKeys(){

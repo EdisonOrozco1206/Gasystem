@@ -23,7 +23,7 @@ class SchedulesImport implements ToCollection, ToModel
 
     public function model(array $row){
         $this->current++;
-        if($this->current > 1){
+        if($this->current > 1 && !empty($row[0])){
             $user = User::where("document_number", '=', $row[0])->first();
             $env = Environment::where("code", '=', $row[1])->first();
 

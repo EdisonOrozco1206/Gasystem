@@ -7,10 +7,12 @@ use App\Models\Environment;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
 use App\Imports\EnvironmentsImport;
+use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Environments extends Component{
     use WithFileUploads;
+    use WithPagination;
 
     public $environments, $search, $name, $capacity, $availability, $code, $file, $errors = [], $success;
     public $popup = false;
@@ -38,8 +40,7 @@ class Environments extends Component{
     }
 
     public function save(){
-        $this->errors = [];
-        $this->success = "";
+        $this->clearErrors();
         if(empty($this->code) || $this->code == ""){ $this->errors['code'] = "Este campo es obligatorio"; }
         if(empty($this->name) || $this->name == ""){ $this->errors['name'] = "Este campo es obligatorio"; }
         if(empty($this->capacity) || $this->capacity == ""){ $this->errors['capacity'] = "Este campo es obligatorio"; }
@@ -59,8 +60,7 @@ class Environments extends Component{
     }
 
     public function update($id){
-        $this->errors = [];
-        $this->success = "";
+        $this->clearErrors();
         if($id){
             if(empty($this->code) || $this->code == ""){ $this->errors['code'] = "Este campo es obligatorio"; }
             if(empty($this->name) || $this->name == ""){ $this->errors['name'] = "Este campo es obligatorio"; }
@@ -82,13 +82,17 @@ class Environments extends Component{
         }
     }
 
-    public function delete($id){
-        $this->errors = [];
-        $this->success = "";
+    public function delete($id){   $this->errors = [];
+        $this->clearErrors();
         if($id){
-            Environment::find($id)->delete();
-            $this->success = "Eliminado correctamente";
-            $this->closePopUp();
+            try{
+                Environment::find($id)->delete();
+                $this->success = "Eliminado correctamente";
+                $this->closePopUp();
+            }catch (\Throwable $th) {
+                $this->closePopUp(1);
+                $this->errors['foreing_kes'] = "No eliminado, Existen otros registros asociados a este elemento o error durante la eliminación";
+            }
         }else{
             $this->errors['id'] = "Identificador no asignado";
         }
@@ -96,11 +100,15 @@ class Environments extends Component{
 
     // Import data from excel
     public function importData(){
-        if($this->file){
-            Excel::import(new EnvironmentsImport, $this->file);
+        $this->clearErrors();
+        try {
+            if($this->file){
+                Excel::import(new EnvironmentsImport, $this->file);
+            }
+            $this->success = "Información importada";
+        } catch (\Throwable $th) {
+            $this->errors['import'] = "Información no importada".$th->getMessage();
         }
-
-        $this->success = "Información importada";
         $this->file = '';
     }
 
@@ -132,9 +140,13 @@ class Environments extends Component{
         }
     }
 
-    public function cancel(){
-        $this->closePopUp();
-        $this->errors = [];
+    public function cancel($o = null){
+        if(isset($o) && !empty($o) && $o == 1){
+            $this->closePopUp();
+        }else{
+            $this->closePopUp();
+            $this->clearErrors();
+        }
     }
 
     public function openPopUp(){
