@@ -31,6 +31,10 @@ Route::middleware([
         return view("users.index");
     })->name("users");
 
+    Route::get("quarters", function(){
+        return view("quarters.index");
+    })->name("quarters");
+
 
     
     // Route::controller(EnvironmentsController::class)->group(function(){

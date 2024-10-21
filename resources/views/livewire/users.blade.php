@@ -31,6 +31,24 @@
                     <path d="M6 6l12 12" />
                 </svg>
             </div>
+        @elseif(isset($errors['foreing_kes']) && !empty($errors['foreing_kes']))
+            <div class="flex justify-between items-center bg-red-500 text-white text-lg font-bold p-4">
+                <p class="">{{ $errors['foreing_kes'] }}</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x cursor-pointer" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round" wire:click.prevent='clearErrors'>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M18 6l-12 12" />
+                    <path d="M6 6l12 12" />
+                </svg>
+            </div>
+        @elseif(isset($errors['import']) && !empty($errors['import']))
+            <div class="flex justify-between items-center bg-red-500 text-white text-lg font-bold p-4">
+                <p class="">{{ $errors['import'] }}</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x cursor-pointer" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round" wire:click.prevent='clearErrors'>
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M18 6l-12 12" />
+                    <path d="M6 6l12 12" />
+                </svg>
+            </div>
         @elseif(isset($success) && !empty($success))
             <div class="flex justify-between items-center bg-green-500 text-white text-lg font-bold p-4">
                 <p class="">{{ $success }}</p>
@@ -41,8 +59,8 @@
                 </svg>
             </div>
         @endif
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-400">
+            <thead class="text-xs uppercase bg-gray-700 text-gray-400">
                 <tr>
                     <th scope="col" class="px-6 py-3">
                         Rol
@@ -75,7 +93,7 @@
             <tbody>
                 @if($users->count() != 0)
                     @foreach($users as $user)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr class="border-b bg-gray-800 border-gray-700">
                             <td scope="row" class="px-6 py-4 font-medium text-white text-center capitalize">
                                 {{ $user->role }}
                             </td>

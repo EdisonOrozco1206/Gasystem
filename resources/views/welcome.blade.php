@@ -16,8 +16,8 @@
             <div class="w-2/4 flex flex-col items-center">
                 <div class="w-5/6">
                     <img src="{{ asset('img/sena.png') }}" alt="Sena Logo" class="w-2/4 drop-shadow-2xl mx-auto">
-                    <h1 class="text-3xl font-bold text-slate-900 mt-4 font-mono">GA System - SENA</h1>
-                    <p class="mt-4 text-sm">Sístema de gestión de ambientes y entrega de llaves.</p>
+                    <h1 class="text-3xl font-bold text-slate-900 mt-4 font-mono">SIGPA - SENA</h1>
+                    <p class="mt-4 text-sm">Sistema integrado de gestion y programación de ambientes</p>
                 </div>
             </div>
             <div class="w-2/6">
