@@ -14,10 +14,11 @@ use App\Exports\SchedulesExport;
 class Dashboard extends Component
 {
     public $keys;
-    public $teacher, $class, $user, $type, $quarter, $nextAmbientsToOcupe, $message, $errors = [], $success;
+    public $teacher, $class, $user, $type, $quarter, $nextAmbientsToOcupe, $message, $errors = [], $success, $quarters;
 
     public function render(){
-        $this->quarter = Quarter::orderBy('id', 'desc')->first();
+        $this->quarter = Quarter::where('startDate', '<=', Carbon::now()->format('Y-m-d'))
+                         ->where('endDate', '>=', Carbon::now()->format('Y-m-d'))->first();
         $ambientEvents = [];
         $auditoryEvents = [];
         $this->nextAmbientsToOcupe = [];
@@ -74,7 +75,7 @@ class Dashboard extends Component
                                             ->where('date', "=", $date)
                                             ->whereHas('environment', function($query) { $query->where('code', 'like', '%AU%'); })
                                             ->where('handOveredKeys', "=", 0)
-                                            ->where('startTime', '>=', now())
+                                            ->where('startTime', '>=', Carbon::now("America/Bogota")->format('H:i'))
                                             ->orderBy("startTime", "asc")
                                             ->first();
                 }
@@ -87,7 +88,7 @@ class Dashboard extends Component
                                             ->where('date', "=", $date)
                                             ->whereHas('environment', function($query) { $query->where('code', 'not like', '%AU%'); })
                                             ->where('handOveredKeys', "=", 0)
-                                            ->where('startTime', '>=', now())
+                                            ->where('startTime', '>=', Carbon::now("America/Bogota")->format('H:i'))
                                             ->orderBy("startTime", "asc")
                                             ->first();
                 }
@@ -110,12 +111,17 @@ class Dashboard extends Component
         return null;
     }
 
+    public function selectQuarter(){
+        $this->quarters = Quarter::all();
+    }
+
     // Export data in excel
-    public function exportData(){
+    public function exportData($id){
         $this->clearErrors();
         try {
-            return Excel::download(new SchedulesExport, "reporte.xlsx");
-            $this->success = "Información importada";
+            $this->quarters = '';
+            $this->success = "Información exportada";
+            return Excel::download(new SchedulesExport($id), "reporte.xlsx");
         } catch (\Throwable $th) {
             $this->errors['export'] = "Información no exportada: ".$th->getMessage();
         }
@@ -151,5 +157,6 @@ class Dashboard extends Component
         $this->user = '';
         $this->type = '';
         $this->message = '';
+        $this->quarters = '';
     }
 }
