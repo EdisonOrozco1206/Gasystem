@@ -29,12 +29,21 @@ class Schedule extends Component{
     }
 
     public function render(){
-        $lastQuarter = Quarter::orderBy('id', 'desc')->first();
+        $lastQuarter = Quarter::where('startDate', '<=', Carbon::now()->format('Y-m-d'))
+                        ->where('endDate', '>=', Carbon::now()->format('Y-m-d'))->first();
 
         if($this->search){
-            $this->schedules = Schedules::whereHas('environment', function ($query) { $query->where('code', 'like', "%$this->search%"); })->whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
+            if(!empty($lastQuarter)){
+                $this->schedules = Schedules::whereHas('environment', function ($query) { $query->where('code', 'like', "%$this->search%"); })->whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
+            }else{
+                $this->schedules = Schedules::whereHas('environment', function ($query) { $query->where('code', 'like', "%$this->search%"); })->get();
+            }
         }else{
-            $this->schedules = Schedules::whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
+            if(!empty($lastQuarter)){
+                $this->schedules = Schedules::whereBetween('date', [$lastQuarter->startDate, $lastQuarter->endDate])->get();
+            }else{
+                $this->schedules = Schedules::all();
+            }
         }
 
         return view('livewire.schedule');

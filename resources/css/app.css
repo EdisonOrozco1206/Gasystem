@@ -33,3 +33,9 @@
         }
     }
 }
+.swal2-confirm{
+    background-color: #22c55e !important;
+}
+.swal2-cancel{
+    display: none !important;
+}

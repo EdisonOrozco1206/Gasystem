@@ -1,7 +1,7 @@
 <div>
 
     <div class="flex justify-center items-center mt-3 gap-2 px-3">
-        <x-button class="py-3 w-1/6 justify-center p-2 sm:p-0" wire:click="add">
+        <x-button class="py-3 w-1/6 justify-center p-2" wire:click="add">
             {{ __('Agregar') }}
         </x-button>
         @if(!$file)

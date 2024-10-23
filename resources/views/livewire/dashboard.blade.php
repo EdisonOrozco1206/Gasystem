@@ -5,8 +5,8 @@
 
   @if(Auth::user()->role != "instructor")
     <div class="flex justify-center py-4">
-      @if(!$keys)
-        <x-button class="py-3 w-full sm:w-3/12 justify-center mx-3" wire:click="handOverKeys">
+      @if(!$keys && Auth::user()->role != "coordinador")
+        <x-button class="py-3 w-full sm:w-3/12  justify-center mx-3" wire:click="handOverKeys">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-key mr-3" width="25" height="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" />
@@ -16,7 +16,15 @@
         </x-button>
       @endif
       @if(Auth::user()->role == "coordinador")
-        <x-secondary-button class="py-3 w-3/12 justify-center mx-3" wire:click='exportData'>
+        <x-button class="py-3 w-1/2 sm:w-3/12 justify-center mx-3" wire:click="handOverKeys">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-key mr-3" width="25" height="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" />
+            <path d="M15 9h.01" />
+          </svg>
+          {{ __('Entregar llaves') }}
+        </x-button>
+        <x-secondary-button class="py-3 sm:w-3/12 w-1/2 justify-center mx-3" wire:click='selectQuarter'>
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download mr-3" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#9e9e9e" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
@@ -27,6 +35,10 @@
         </x-secondary-button>
       @endif
     </div>
+  @endif
+
+  @if($quarters)
+    @include("dashboard.popup")
   @endif
 
   @if($keys)
@@ -98,10 +110,6 @@
           slotMinTime: "06:00", 
           slotMaxTime: "23:00", 
           locale: 'col',
-          validRange: {
-            start: "{{ $quarter->startDate }}",
-            end: "{{ $quarter->endDate }}"
-          },
           hiddenDays: [0],
           headerToolbar: {
             left: 'prev,next',
@@ -146,13 +154,18 @@
                 showCancelButton: true,
                 focusConfirm: false,
                 confirmButtonText: `
-                  <i class="fa fa-thumbs-up"></i> Great!
+                  <i class="fa fa-thumbs-up"></i> Cerrar
                 `,
                 confirmButtonAriaLabel: "Thumbs up, great!",
-                cancelButtonText: `
-                  <i class="fa fa-thumbs-down"></i>
-                `,
-                cancelButtonAriaLabel: "Thumbs down"
+                validRange: {
+                  @if(isset($quarter) && !empty($quarter))
+                    start: "{{ $quarter->startDate }}",
+                    end: "{{ $quarter->endDate }}"
+                  @else
+                    start: "{{ now()->format('Y-m-d') }}",
+                    end: "{{ now()->addMonth()->format('Y-m-d') }}" 
+                  @endif
+                }
               });
             }
           });
@@ -162,10 +175,6 @@
             slotMinTime: "06:00", 
             slotMaxTime: "23:00", 
             locale: 'col',
-            validRange: {
-              start: "{{ $quarter->startDate }}",
-              end: "{{ $quarter->endDate }}"
-            },
             hiddenDays: [0],
             headerToolbar: {
               left: 'prev,next',
@@ -212,13 +221,18 @@
                 showCancelButton: true,
                 focusConfirm: false,
                 confirmButtonText: `
-                  <i class="fa fa-thumbs-up"></i> Great!
+                  <i class="fa fa-thumbs-up"></i> Cerrar
                 `,
                 confirmButtonAriaLabel: "Thumbs up, great!",
-                cancelButtonText: `
-                  <i class="fa fa-thumbs-down"></i>
-                `,
-                cancelButtonAriaLabel: "Thumbs down"
+                validRange: {
+                  @if(isset($quarter) && !empty($quarter))
+                    start: "{{ $quarter->startDate }}",
+                    end: "{{ $quarter->endDate }}"
+                  @else
+                    start: "{{ now()->format('Y-m-d') }}",
+                    end: "{{ now()->addMonth()->format('Y-m-d') }}" 
+                  @endif
+                }
               });
             }
           })

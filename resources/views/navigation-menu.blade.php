@@ -69,9 +69,12 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
                         {{ __('Inicio') }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
-                        {{ __('Programación') }}
-                    </x-nav-link>
+                    
+                    @if(Auth::user()->role != "instructor")
+                        <x-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
+                            {{ __('Programación') }}
+                        </x-nav-link>
+                    @endif
 
                     @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
                         <x-nav-link href="{{ route('quarters') }}" :active="request()->routeIs('quarters')" class="pl-4 text-lg py-2 hover:bg-green-600 text-white hover:text-gray-300">
@@ -159,9 +162,11 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Inicio') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')">
-                {{ __('Programación') }}
-            </x-responsive-nav-link>
+            @if(Auth::user()->role != "instructor")
+                <x-responsive-nav-link href="{{ route('schedule') }}" :active="request()->routeIs('schedule')">
+                    {{ __('Programación') }}
+                </x-responsive-nav-link>
+            @endif
             @if(Auth::user()->role == "admin" || Auth::user()->role == "coordinador")
                 <x-responsive-nav-link href="{{ route('quarters') }}" :active="request()->routeIs('quarters')">
                     {{ __('Trimestres') }}
