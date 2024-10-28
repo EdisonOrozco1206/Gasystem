@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <img src="{{ asset('img/sena.png') }}" alt="Sena Logo" class="w-2/4 drop-shadow-2xl mx-auto">
+            <img src="{{ asset('img/sena.png') }}" alt="Sena Logo" class="w-2/12 drop-shadow-2xl mx-auto">
         </x-slot>
 
         <x-validation-errors class="mb-4" />
