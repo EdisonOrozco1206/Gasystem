@@ -12,15 +12,15 @@
 
     </head>
     <body>
-        <div class="h-screen w-3/4 mx-auto flex flex-row justify-around items-center">
+        <div class="h-screen w-full sm:w-3/4 mx-auto flex flex-col sm:flex-row justify-around items-center">
             <div class="w-2/4 flex flex-col items-center">
-                <div class="w-5/6">
+                <div class="w-full sm:w-5/6">
                     <img src="{{ asset('img/sena.png') }}" alt="Sena Logo" class="w-2/4 drop-shadow-2xl mx-auto">
-                    <h1 class="text-3xl font-bold text-slate-900 mt-4 font-mono">SIGPA - SENA</h1>
-                    <p class="mt-4 text-sm">Sistema integrado de gestion y programación de ambientes</p>
+                    <h1 class="text-3xl font-bold text-slate-900 mt-4 font-mono text-center">SIGPA - SENA</h1>
+                    <p class="mt-4 text-sm text-center">Sistema integrado de gestion y programación de ambientes</p>
                 </div>
             </div>
-            <div class="w-2/6">
+            <div class="w-5/6 sm:w-2/6">
                 @if (Route::has('login'))
                     <nav class="-mx-3 flex flex-col items-center">
                         @auth
