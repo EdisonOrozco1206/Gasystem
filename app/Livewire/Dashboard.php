@@ -63,7 +63,7 @@ class Dashboard extends Component
 
     public function searchClasses(){
         $this->message = '';
-        $this->user = User::where("code", "=", $this->extractDocumentNumber($this->teacher))->first();
+        $this->user = User::whereRaw("MATCH(code) AGAINST (? IN NATURAL LANGUAGE MODE)", [$this->clearCodeCharacters($this->teacher)])->first();
         $date = Carbon::now("America/Bogota")->toDateString();
 
         if($this->user){
@@ -104,9 +104,9 @@ class Dashboard extends Component
         }
     }
 
-    public function extractDocumentNumber() {
-        if (preg_match('/(\d+)(?=PubDSK)/', $this->teacher, $matches)) {
-            return $matches[1];
+    public function clearCodeCharacters() {
+        if($clearCode = str_replace("'", "", $this->teacher)){
+            return $clearCode;
         }
         return null;
     }
