@@ -24,8 +24,8 @@ class UsersImport implements ToCollection, ToModel
         $this->current++;
         $count = User::where("document_number", '=', $row[0])->count();
         if($this->current > 1 && !empty($row[0]) && empty($count)){
-            if (preg_match('/(\d+)(?=PubDSK)/', $row[2], $matches)) {
-                $row[2] = $matches[1];
+            if($clearCode = str_replace("'", "", $row[2])){
+                $row[2] = $clearCode;
             }
 
             $env = new User();

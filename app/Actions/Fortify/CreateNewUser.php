@@ -29,9 +29,10 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
+        
 
-        if (preg_match('/(\d+)(?=PubDSK)/', $input['code'], $matches)) {
-            $input['code'] = $matches[1];
+        if($clearCode = str_replace("'", "", $input['code'])){
+            $input['code'] = $clearCode;
         }
 
         return User::create([
